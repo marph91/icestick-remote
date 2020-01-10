@@ -1,0 +1,201 @@
+library ieee;
+  use ieee.std_logic_1164.all;
+library work;
+  use work.codec_pkg.all;
+
+entity ir_encoder is
+  generic (
+    C_DUTY_CYCLE : integer range 1 to 2 := 2;
+    -- active time:inactive time = 1:C_DUTY_CYCLE
+    -- max duty cycle is 1:2, because of max ir (115 kbps = 105 cycles)
+    C_CODEC : t_codec := NEC
+  );
+  port (
+    isl_clk   : in std_logic;
+    isl_valid : in std_logic;
+    islv_data : in std_logic_vector(7 downto 0);
+    osl_ir    : out std_logic
+  );
+end ir_encoder;
+
+architecture behavioral of ir_encoder is
+  -- TODO: this is not yet synthesizable with ghdlsynth
+  constant C_CONST : t_constants := C_CONSTANTS_KASEIKYO;--get_constants(C_CODEC);
+
+  signal int_ir_period_cnt : integer range 0 to C_CONST.CARRIER_PERIOD := 0;
+  signal int_blocking_cnt : integer range 0 to C_CONST.NEXT_WORD_PAUSE := 0;
+  signal int_bit_counter : integer range 0 to C_CONST.DATA_BYTES_OUT*8-1 := 0;
+
+  signal int_byte_cnt : integer range 0 to C_CONST.DATA_BYTES_IN := 0;
+  signal slv_data : std_logic_vector(C_CONST.DATA_BYTES_IN*8-1 downto 0) := (others => '0');
+
+  signal sl_data_ready,
+         sl_ctr_finish_d1,
+         sl_ir : std_logic := '0';
+
+  signal slv_bits_current,
+         slv_bits_previous : std_logic_vector(C_CONST.DATA_BYTES_OUT*8-1 downto 0) := (others => '0');
+
+  type t_state is (IDLE,
+                   INIT_BURST, INIT_SPACE_REPEAT, INIT_SPACE_SEND, FINISH_BURST,
+                   SPACE_BIT, SEND_BIT);
+  signal state : t_state;
+
+  type t_counter is record
+    sl_start : std_logic;
+    int_start_cnt : integer range 0 to C_CONST.START_BIT_PULSE;
+    int_current_cnt : integer range 0 to C_CONST.START_BIT_PULSE;
+    sl_finish : std_logic;
+  end record t_counter;
+  signal r_ctr : t_counter;
+
+  function f_prepare_data(slv_data_in : in std_logic_vector(C_CONST.DATA_BYTES_IN*8-1 downto 0);
+                          sl_codec : in t_codec)
+                          return std_logic_vector is
+    variable slv_data_out : std_logic_vector(C_CONST.DATA_BYTES_OUT*8-1 downto 0);
+  begin
+    -- TODO: negation shouldn't be needed here
+    if sl_codec = NEC then
+      slv_data_out := not slv_data_in(15 downto 8) & slv_data_in(15 downto 8) &
+                      not slv_data_in(7 downto 0) & slv_data_in(7 downto 0);
+    elsif sl_codec = KAS then
+      slv_data_out := slv_data_in;
+    end if;
+    return slv_data_out;
+  end;
+begin
+  proc_receive_data : process(isl_clk)
+  begin
+    if rising_edge(isl_clk) then
+      if isl_valid = '1' then
+        if int_byte_cnt < C_CONST.DATA_BYTES_IN then
+          int_byte_cnt <= int_byte_cnt+1;
+        end if;
+        -- first received byte will be at lowest index
+        slv_data <= islv_data & slv_data(slv_data'LEFT downto slv_data'RIGHT + islv_data'LENGTH);
+      end if;
+
+      if sl_data_ready = '1' then
+        sl_data_ready <= '0';
+        int_byte_cnt <= 0;
+      elsif int_byte_cnt = C_CONST.DATA_BYTES_IN and int_blocking_cnt = 0 then
+        slv_bits_current <= f_prepare_data(slv_data, C_CODEC);
+        sl_data_ready <= '1';
+      end if;
+    end if;
+  end process;
+
+  proc_states : process(isl_clk)
+  begin
+    if rising_edge(isl_clk) then
+      sl_ctr_finish_d1 <= r_ctr.sl_finish;
+      r_ctr.sl_start <= sl_ctr_finish_d1;
+
+      if int_blocking_cnt > 0 then
+        int_blocking_cnt <= int_blocking_cnt - 1;
+      end if;
+
+      case state is
+        when IDLE =>
+          if sl_data_ready = '1' then
+            state <= INIT_BURST;
+            r_ctr.sl_start <= '1';
+            r_ctr.int_start_cnt <= C_CONST.START_BIT_PULSE;
+
+            int_blocking_cnt <= C_CONST.NEXT_WORD_PAUSE;
+          end if;
+
+        when INIT_BURST =>
+          if r_ctr.sl_finish = '1' then
+            slv_bits_previous <= slv_bits_current;
+            if slv_bits_previous = slv_bits_current and C_CODEC = NEC then
+              state <= INIT_SPACE_REPEAT;
+              r_ctr.int_start_cnt <= C_CONST.START_BIT_PAUSE_REPEAT;
+            else
+              state <= INIT_SPACE_SEND;
+              r_ctr.int_start_cnt <= C_CONST.START_BIT_PAUSE;
+            end if;
+          end if;
+
+        -- send new signal
+        when INIT_SPACE_SEND =>
+          if r_ctr.sl_finish = '1' then
+            state <= SEND_BIT;
+            r_ctr.int_start_cnt <= C_CONST.BIT_PULSE;
+          end if;
+
+        when SEND_BIT =>
+          if r_ctr.sl_finish = '1' then
+            state <= SPACE_BIT;
+            if slv_bits_current(int_bit_counter) = '0' then
+              r_ctr.int_start_cnt <= C_CONST.BIT_0_PAUSE;
+            else
+              r_ctr.int_start_cnt <= C_CONST.BIT_1_PAUSE;
+            end if;
+          end if;
+
+        when SPACE_BIT =>
+          if r_ctr.sl_finish = '1' then
+            r_ctr.int_start_cnt <= C_CONST.BIT_PULSE;
+            if int_bit_counter /= C_CONST.DATA_BYTES_OUT*8-1 then
+              int_bit_counter <= int_bit_counter+1;
+              state <= SEND_BIT;
+            else
+              int_bit_counter <= 0;
+              state <= FINISH_BURST;
+            end if;
+          end if;
+
+        -- repeat signal
+        when INIT_SPACE_REPEAT =>
+          if r_ctr.sl_finish = '1' then
+            state <= FINISH_BURST;
+            r_ctr.int_start_cnt <= C_CONST.BIT_PULSE;
+          end if;
+
+        when FINISH_BURST =>
+          if r_ctr.sl_finish = '1' then
+            state <= IDLE;
+          end if;
+      end case;
+    end if;
+  end process;
+
+  proc_ir_active : process(isl_clk)
+  begin
+    if rising_edge(isl_clk) then
+      if state = INIT_BURST or
+         state = SEND_BIT or
+         state = FINISH_BURST then
+        if int_ir_period_cnt > C_CONST.CARRIER_PERIOD / (C_DUTY_CYCLE + 1) then
+          int_ir_period_cnt <= int_ir_period_cnt - 1;
+          sl_ir <= '0';
+        elsif int_ir_period_cnt > 0 then
+          int_ir_period_cnt <= int_ir_period_cnt - 1;
+          sl_ir <= '1';
+        else
+          int_ir_period_cnt <= C_CONST.CARRIER_PERIOD;
+        end if;
+      else
+        int_ir_period_cnt <= C_CONST.CARRIER_PERIOD;
+        sl_ir <= '0';
+      end if;
+    end if;
+  end process;
+
+  proc_cnt : process(isl_clk)
+  begin
+    if rising_edge(isl_clk) then
+      if r_ctr.sl_start = '1' then
+        r_ctr.int_current_cnt <= r_ctr.int_start_cnt;
+      end if;
+
+      if r_ctr.int_current_cnt > 0 then
+        r_ctr.int_current_cnt <= r_ctr.int_current_cnt-1;
+      end if;
+    end if;
+  end process;
+  r_ctr.sl_finish <= '1' when r_ctr.int_current_cnt = 1 else '0';
+
+  osl_ir <= sl_ir;
+end behavioral;
