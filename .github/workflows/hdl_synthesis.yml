@@ -28,6 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ghdl/synth:nextpnr
     steps:
+      - uses: actions/checkout@v1
       - name: Download result of synthesis
         uses: actions/download-artifact@v1
         with:
