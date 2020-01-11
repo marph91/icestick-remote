@@ -34,7 +34,7 @@ jobs:
         with:
           name: output
       - name: Run place and route
-        run: nextpnr-ice40 --hx1k --package tq144 --json output/remote.json --pcf constraints/remote.pcf --asc remote.asc
+        run: nextpnr-ice40 --hx1k --package tq144 --json output/remote.json --pcf syn/constraints/remote.pcf --asc remote.asc
       - name: Upload result
         uses: actions/upload-artifact@v1
         with:
