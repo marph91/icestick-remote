@@ -1,4 +1,4 @@
-name: Check scripts
+name: check_scripts
 
 on:
   push:
