@@ -27,6 +27,17 @@ Remote control in VHDL, which fits on a Lattice icestick. The whole design flow 
 - Send control signals to the icestick, which get encoded and sent via the infrared LED: `cd gui && ./remote_gui.py`
 - New codes can be obtained by pressing the "Start sampling" button at the "Sample" tab.
 
+## Resource usage
+
+resource | absolute usage | relative usage
+-------------|----------:|---:
+ICESTORM_LC  | 572/ 1280 | 44%
+ICESTORM_RAM |   2/   16 | 12%
+SB_IO        |   6/  112 |  5%
+SB_GB        |   4/    8 | 50%
+ICESTORM_PLL |   0/    1 |  0%
+SB_WARMBOOT  |   0/    1 |  0%
+
 ## Further information
 Panasonic remotes use the Kaseikyo protocol. Other Panasonic devices may use different codes, which can be extended. The NEC protocol can be also activated via generic. However, it wasn't tested.
 
