@@ -1,5 +1,5 @@
 package codec_pkg is
-  type t_codec is (NEC, KAS);
+  type t_codec is (NEC, KASEIKYO);
   type t_constants is record
     DATA_BYTES_IN          : integer;
     DATA_BYTES_OUT         : integer;
@@ -12,8 +12,6 @@ package codec_pkg is
     BIT_1_PAUSE            : integer;
     NEXT_WORD_PAUSE        : integer;
   end record t_constants;
-  constant C_CONSTANTS_NEC : t_constants;
-  constant C_CONSTANTS_KASEIKYO : t_constants;
 
   function get_constants(sl_codec : t_codec) return t_constants;
 end codec_pkg;
@@ -52,7 +50,7 @@ package body codec_pkg is
   begin
     if sl_codec = NEC then
       v_const := C_CONSTANTS_NEC;
-    elsif sl_codec = KAS then
+    elsif sl_codec = KASEIKYO then
       v_const := C_CONSTANTS_KASEIKYO;
     end if;
     return v_const;

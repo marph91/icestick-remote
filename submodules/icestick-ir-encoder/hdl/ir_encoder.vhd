@@ -8,7 +8,7 @@ entity ir_encoder is
     C_DUTY_CYCLE : integer range 1 to 2 := 2;
     -- active time:inactive time = 1:C_DUTY_CYCLE
     -- max duty cycle is 1:2, because of max ir (115 kbps = 105 cycles)
-    C_CODEC : t_codec := NEC
+    C_CODEC : t_codec := KASEIKYO
   );
   port (
     isl_clk   : in std_logic;
@@ -19,8 +19,7 @@ entity ir_encoder is
 end ir_encoder;
 
 architecture behavioral of ir_encoder is
-  -- TODO: this is not yet synthesizable with ghdlsynth
-  constant C_CONST : t_constants := C_CONSTANTS_KASEIKYO;--get_constants(C_CODEC);
+  constant C_CONST : t_constants := get_constants(C_CODEC);
 
   signal int_ir_period_cnt : integer range 0 to C_CONST.CARRIER_PERIOD := 0;
   signal int_blocking_cnt : integer range 0 to C_CONST.NEXT_WORD_PAUSE := 0;
@@ -58,7 +57,7 @@ architecture behavioral of ir_encoder is
     if sl_codec = NEC then
       slv_data_out := not slv_data_in(15 downto 8) & slv_data_in(15 downto 8) &
                       not slv_data_in(7 downto 0) & slv_data_in(7 downto 0);
-    elsif sl_codec = KAS then
+    elsif sl_codec = KASEIKYO then
       slv_data_out := slv_data_in;
     end if;
     return slv_data_out;

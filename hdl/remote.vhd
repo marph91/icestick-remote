@@ -7,7 +7,7 @@ entity remote is
   generic (
     C_CYCLES_PER_BIT : integer := 104;
     C_DUTY_CYCLE     : integer := 2;
-    C_CODEC          : t_codec := KAS;
+    C_CODEC          : t_codec := KASEIKYO;
     C_WITH_SAMPLER   : std_logic := '1'
   );
   port (
