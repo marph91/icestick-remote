@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     container: ghdl/synth:beta
     steps:
+      - name: Update git # manually, until git >= 2.18 is available in the container
+        run: apt update && apt install --yes git
       - uses: actions/checkout@v2
-        with:
-          submodules: recursive
       - name: Run synthesis
         run: |
           ghdl -a "submodules/icestick-uart/hdl/uart_rx.vhd"
