@@ -7,7 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     container: ghdl/synth:beta
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Run synthesis
         run: |
           ghdl -a "submodules/icestick-uart/hdl/uart_rx.vhd"
