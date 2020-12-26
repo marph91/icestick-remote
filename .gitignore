@@ -1,6 +1,7 @@
 lattice
 build
 .mypy_cache
+.vscode
 __pycache__
 *.gtkw
 *.ghw
