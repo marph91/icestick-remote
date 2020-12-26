@@ -81,8 +81,13 @@ begin
   proc_encode : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
-      sl_ctr_finish_d1 <= r_ctr.sl_finish;
-      r_ctr.sl_start <= sl_ctr_finish_d1;
+      -- Counter should be only triggered once in the IDLE state.
+      -- From then on, it will be triggered automatically, since
+      -- each state needs a counter.
+      if state /= IDLE then
+        sl_ctr_finish_d1 <= r_ctr.sl_finish;
+        r_ctr.sl_start <= sl_ctr_finish_d1;
+      end if;
 
       if int_blocking_cnt > 0 then
         int_blocking_cnt <= int_blocking_cnt - 1;
