@@ -25,8 +25,8 @@ jobs:
       - name: Upload result
         uses: actions/upload-artifact@v2
         with:
-          name: netlist
-          path: output/remote.json
+          name: output
+          path: remote.json
   pnr:
     needs: synthesis
     runs-on: ubuntu-latest
@@ -36,15 +36,15 @@ jobs:
       - name: Download result of synthesis
         uses: actions/download-artifact@v2
         with:
-          name: netlist
+          name: output
           path: output
       - name: Run place and route
         run: nextpnr-ice40 --hx1k --package tq144 --json output/remote.json --pcf syn/constraints/remote.pcf --asc remote.asc
       - name: Upload result
         uses: actions/upload-artifact@v2
         with:
-          name: map
-          path: output/remote.asc
+          name: output
+          path: remote.asc
   pack:
     needs: pnr
     runs-on: ubuntu-latest
@@ -53,12 +53,12 @@ jobs:
       - name: Download result of place and route
         uses: actions/download-artifact@v2
         with:
-          name: map
+          name: output
           path: output
       - name: Run packing
         run: icepack output/remote.asc remote.bin
       - name: Upload result
         uses: actions/upload-artifact@v2
         with:
-          name: bitstream
-          path: output/remote.bin
+          name: output
+          path: remote.bin
