@@ -17,7 +17,7 @@ begin
   dut: entity work.ir_encoder
   generic map (
     C_DUTY_CYCLE => 2,
-    C_CODEC => NEC
+    C_CODEC => KASEIKYO
   )
   port map (
     isl_clk   => sl_clk,
@@ -43,6 +43,7 @@ begin
 
     wait for 110 ms;
     wait for C_CLK_PERIOD;
+    slv_data_in <= (others => '0');
     sl_valid_in <= '1';
     wait for C_CLK_PERIOD * 6;
     sl_valid_in <= '0';

@@ -23,17 +23,17 @@ architecture behavioral of ir_encoder is
 
   signal int_ir_period_cnt : integer range 0 to C_CONST.CARRIER_PERIOD := 0;
   signal int_blocking_cnt : integer range 0 to C_CONST.NEXT_WORD_PAUSE := 0;
-  signal int_bit_counter : integer range 0 to C_CONST.DATA_BYTES_OUT*8-1 := 0;
+  signal int_bit_counter : integer range 0 to C_CONST.DATA_BYTES*8-1 := 0;
 
-  signal int_byte_cnt : integer range 0 to C_CONST.DATA_BYTES_IN := 0;
-  signal slv_data : std_logic_vector(C_CONST.DATA_BYTES_IN*8-1 downto 0) := (others => '0');
+  signal int_byte_cnt : integer range 0 to C_CONST.DATA_BYTES := 0;
+  signal slv_data : std_logic_vector(C_CONST.DATA_BYTES*8-1 downto 0) := (others => '0');
 
   signal sl_data_ready,
          sl_ctr_finish_d1,
          sl_ir : std_logic := '0';
 
   signal slv_bits_current,
-         slv_bits_previous : std_logic_vector(C_CONST.DATA_BYTES_OUT*8-1 downto 0) := (others => '0');
+         slv_bits_previous : std_logic_vector(C_CONST.DATA_BYTES*8-1 downto 0) := (others => '0');
 
   type t_state is (IDLE,
                    INIT_BURST, INIT_SPACE_REPEAT, INIT_SPACE_SEND, FINISH_BURST,
@@ -48,26 +48,13 @@ architecture behavioral of ir_encoder is
   end record t_counter;
   signal r_ctr : t_counter;
 
-  function f_prepare_data(slv_data_in : in std_logic_vector(C_CONST.DATA_BYTES_IN*8-1 downto 0);
-                          sl_codec : in t_codec)
-                          return std_logic_vector is
-    variable slv_data_out : std_logic_vector(C_CONST.DATA_BYTES_OUT*8-1 downto 0);
-  begin
-    -- TODO: negation shouldn't be needed here
-    if sl_codec = NEC then
-      slv_data_out := not slv_data_in(15 downto 8) & slv_data_in(15 downto 8) &
-                      not slv_data_in(7 downto 0) & slv_data_in(7 downto 0);
-    elsif sl_codec = KASEIKYO then
-      slv_data_out := slv_data_in;
-    end if;
-    return slv_data_out;
-  end;
 begin
+  -- Receive and reassemble the data to send.
   proc_receive_data : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       if isl_valid = '1' then
-        if int_byte_cnt < C_CONST.DATA_BYTES_IN then
+        if int_byte_cnt < C_CONST.DATA_BYTES then
           int_byte_cnt <= int_byte_cnt+1;
         end if;
         -- first received byte will be at lowest index
@@ -77,14 +64,15 @@ begin
       if sl_data_ready = '1' then
         sl_data_ready <= '0';
         int_byte_cnt <= 0;
-      elsif int_byte_cnt = C_CONST.DATA_BYTES_IN and int_blocking_cnt = 0 then
-        slv_bits_current <= f_prepare_data(slv_data, C_CODEC);
+      elsif int_byte_cnt = C_CONST.DATA_BYTES and int_blocking_cnt = 0 then
+        slv_bits_current <= slv_data;
         sl_data_ready <= '1';
       end if;
     end if;
   end process;
 
-  proc_states : process(isl_clk)
+  -- Encode the data to fit the the specified protocol.
+  proc_encode : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
       sl_ctr_finish_d1 <= r_ctr.sl_finish;
@@ -136,7 +124,7 @@ begin
         when SPACE_BIT =>
           if r_ctr.sl_finish = '1' then
             r_ctr.int_start_cnt <= C_CONST.BIT_PULSE;
-            if int_bit_counter /= C_CONST.DATA_BYTES_OUT*8-1 then
+            if int_bit_counter /= C_CONST.DATA_BYTES*8-1 then
               int_bit_counter <= int_bit_counter+1;
               state <= SEND_BIT;
             else
@@ -160,6 +148,9 @@ begin
     end if;
   end process;
 
+  -- Control the infrared LED.
+  -- Only light the LED in the correct states.
+  -- Provide a carrier frequency as specified in the constants.
   proc_ir_active : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
@@ -182,6 +173,9 @@ begin
     end if;
   end process;
 
+  -- Simple counter, decrementing an integer each cycle.
+  -- The counter is started by setting the start signal.
+  -- When the counter counted down to 1, it send a finish signal.
   proc_cnt : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
