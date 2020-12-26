@@ -3,7 +3,7 @@
 [![check_scripts](https://github.com/marph91/icestick-remote/workflows/check_scripts/badge.svg)](https://github.com/marph91/icestick-remote/actions?query=workflow%3Acheck_scripts)
 [![synthesis](https://github.com/marph91/icestick-remote/workflows/hdl_synthesis/badge.svg)](https://github.com/marph91/icestick-remote/actions?query=workflow%3Ahdl_synthesis)
 
-Remote control in VHDL, which fits on a Lattice icestick. The whole design flow was done using open source tools. It was tested with a Panasonic TX-49FXW654 and can be extended for other devices.
+Remote control in VHDL, which fits on a Lattice icestick. The whole design flow was done using open source tools. It was tested with a Panasonic TX-49FXW654 and can be extended for other devices and protocols.
 
 ## Repository structure
 
@@ -18,11 +18,8 @@ Remote control in VHDL, which fits on a Lattice icestick. The whole design flow 
 
 ## Prerequisites
 
-- ghdl: <https://github.com/ghdl/ghdl>
-- ghdlsynth: <https://github.com/tgingold/ghdlsynth-beta>
-- yosys: <https://github.com/YosysHQ/yosys>
-- nextpnr: <https://github.com/YosysHQ/nextpnr>
-- icestorm: <https://github.com/cliffordwolf/icestorm>
+To process the VHDL code and finally flash the generated bitstream on the device, the open source toolchain was used. This includes [ghdl](https://github.com/ghdl/ghdl), [ghdl-yosys-plugin](https://github.com/ghdl/ghdl-yosys-plugin), [yosys](https://github.com/YosysHQ/yosys), [nextpnr](https://github.com/YosysHQ/nextpnr) and [icestorm](https://github.com/cliffordwolf/icestorm). Further information about the tools can be found at the linked pages.
+There are also prepared docker container, including all the mentioned tools. For more information, see <https://github.com/ghdl/docker> respectively <https://github.com/hdl/containers>.
 
 ## Usage
 
@@ -43,7 +40,7 @@ SB_WARMBOOT  |   0/    1 |  0%
 
 ## Further information
 
-Panasonic remotes use the Kaseikyo protocol. Other Panasonic devices may use different codes, which can be extended. The NEC protocol can be also activated via generic. However, it wasn't tested.
+Panasonic remotes use the Kaseikyo protocol. Other Panasonic devices may use different codes, which can be extended. Since the Kaseikyo protocol uses pulse distance coding, other protocols with the same encoding technique could be added trivially. The NEC protocol is one of them and can be activated via generic. However, it wasn't tested.
 
 Useful links:
 
