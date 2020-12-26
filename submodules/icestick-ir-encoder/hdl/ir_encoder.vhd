@@ -35,9 +35,15 @@ architecture behavioral of ir_encoder is
   signal slv_bits_current,
          slv_bits_previous : std_logic_vector(C_CONST.DATA_BYTES*8-1 downto 0) := (others => '0');
 
-  type t_state is (IDLE,
-                   INIT_BURST, INIT_SPACE_REPEAT, INIT_SPACE_SEND, FINISH_BURST,
-                   SPACE_BIT, SEND_BIT);
+  type t_state is (
+    IDLE,
+    SEND_START_BIT_PULSE,
+    SEND_START_BIT_PAUSE_REPEAT,
+    SEND_START_BIT_PAUSE,
+    SEND_STOP_BIT,
+    SEND_BIT_PAUSE,
+    SEND_BIT_PULSE
+  );
   signal state : t_state;
 
   type t_counter is record
@@ -85,35 +91,40 @@ begin
       case state is
         when IDLE =>
           if sl_data_ready = '1' then
-            state <= INIT_BURST;
+            state <= SEND_START_BIT_PULSE;
             r_ctr.sl_start <= '1';
             r_ctr.int_start_cnt <= C_CONST.START_BIT_PULSE;
 
             int_blocking_cnt <= C_CONST.NEXT_WORD_PAUSE;
           end if;
 
-        when INIT_BURST =>
+        when SEND_START_BIT_PULSE =>
           if r_ctr.sl_finish = '1' then
             slv_bits_previous <= slv_bits_current;
+
+            -- Sending the same signal again (i. e. keeping a key pressed) gets handled
+            -- differently at the protocols.
             if slv_bits_previous = slv_bits_current and C_CODEC = NEC then
-              state <= INIT_SPACE_REPEAT;
+              -- Send a fixed sequence if the word is repeated.
+              state <= SEND_START_BIT_PAUSE_REPEAT;
               r_ctr.int_start_cnt <= C_CONST.START_BIT_PAUSE_REPEAT;
             else
-              state <= INIT_SPACE_SEND;
+              -- Encode and send the received word, even if the word is repeated.
+              state <= SEND_START_BIT_PAUSE;
               r_ctr.int_start_cnt <= C_CONST.START_BIT_PAUSE;
             end if;
           end if;
 
         -- send new signal
-        when INIT_SPACE_SEND =>
+        when SEND_START_BIT_PAUSE =>
           if r_ctr.sl_finish = '1' then
-            state <= SEND_BIT;
+            state <= SEND_BIT_PULSE;
             r_ctr.int_start_cnt <= C_CONST.BIT_PULSE;
           end if;
 
-        when SEND_BIT =>
+        when SEND_BIT_PULSE =>
           if r_ctr.sl_finish = '1' then
-            state <= SPACE_BIT;
+            state <= SEND_BIT_PAUSE;
             if slv_bits_current(int_bit_counter) = '0' then
               r_ctr.int_start_cnt <= C_CONST.BIT_0_PAUSE;
             else
@@ -121,26 +132,26 @@ begin
             end if;
           end if;
 
-        when SPACE_BIT =>
+        when SEND_BIT_PAUSE =>
           if r_ctr.sl_finish = '1' then
             r_ctr.int_start_cnt <= C_CONST.BIT_PULSE;
             if int_bit_counter /= C_CONST.DATA_BYTES*8-1 then
               int_bit_counter <= int_bit_counter+1;
-              state <= SEND_BIT;
+              state <= SEND_BIT_PULSE;
             else
               int_bit_counter <= 0;
-              state <= FINISH_BURST;
+              state <= SEND_STOP_BIT;
             end if;
           end if;
 
         -- repeat signal
-        when INIT_SPACE_REPEAT =>
+        when SEND_START_BIT_PAUSE_REPEAT =>
           if r_ctr.sl_finish = '1' then
-            state <= FINISH_BURST;
+            state <= SEND_STOP_BIT;
             r_ctr.int_start_cnt <= C_CONST.BIT_PULSE;
           end if;
 
-        when FINISH_BURST =>
+        when SEND_STOP_BIT =>
           if r_ctr.sl_finish = '1' then
             state <= IDLE;
           end if;
@@ -154,9 +165,9 @@ begin
   proc_ir_active : process(isl_clk)
   begin
     if rising_edge(isl_clk) then
-      if state = INIT_BURST or
-         state = SEND_BIT or
-         state = FINISH_BURST then
+      if state = SEND_START_BIT_PULSE or
+         state = SEND_BIT_PULSE or
+         state = SEND_STOP_BIT then
         if int_ir_period_cnt > C_CONST.CARRIER_PERIOD / (C_DUTY_CYCLE + 1) then
           int_ir_period_cnt <= int_ir_period_cnt - 1;
           sl_ir <= '0';
