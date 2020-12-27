@@ -7,8 +7,8 @@ entity remote is
   generic (
     C_CYCLES_PER_BIT : integer := 104;
     C_DUTY_CYCLE     : integer := 2;
-    C_CODEC          : t_codec := KASEIKYO;
-    C_WITH_SAMPLER   : std_logic := '1'
+    C_CODEC          : string := "kaseikyo";
+    C_WITH_SAMPLER   : integer range 0 to 1 := 1
   );
   port (
     isl_clk           : in std_logic;
@@ -59,7 +59,7 @@ begin
   );
 
   -- for debugging or obtaining new codes
-  gen_ir_sampler : if C_WITH_SAMPLER = '1' generate
+  gen_ir_sampler : if C_WITH_SAMPLER = 1 generate
     i_ir_sampler : entity work.ir_sampler
     generic map (
       C_BITS => C_BITS_UART,

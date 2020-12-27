@@ -8,7 +8,7 @@ entity ir_encoder is
     C_DUTY_CYCLE : integer range 1 to 2 := 2;
     -- active time:inactive time = 1:C_DUTY_CYCLE
     -- max duty cycle is 1:2, because of max ir (115 kbps = 105 cycles)
-    C_CODEC : t_codec := KASEIKYO
+    C_CODEC : string := "kaseikyo"
   );
   port (
     isl_clk           : in std_logic;

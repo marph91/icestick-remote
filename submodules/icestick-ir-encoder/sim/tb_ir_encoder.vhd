@@ -1,7 +1,6 @@
 library ieee;
   use ieee.std_logic_1164.all;
 library work;
-  use work.codec_pkg.all;
 
 entity tb_ir_encoder is
 end tb_ir_encoder;
@@ -17,7 +16,7 @@ begin
   dut: entity work.ir_encoder
   generic map (
     C_DUTY_CYCLE => 2,
-    C_CODEC => KASEIKYO
+    C_CODEC => "kaseikyo"
   )
   port map (
     isl_clk   => sl_clk,

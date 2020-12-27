@@ -1,5 +1,6 @@
+-- TODO: Consider https://github.com/Paebbels/JSON-for-VHDL. It might be suited.
+
 package codec_pkg is
-  type t_codec is (NEC, KASEIKYO);
   type t_constants is record
     -- Byte count of the word to encode.
     DATA_BYTES             : integer;
@@ -23,7 +24,7 @@ package codec_pkg is
     NEXT_WORD_PAUSE        : integer;
   end record t_constants;
 
-  function get_constants(sl_codec : t_codec) return t_constants;
+  function get_constants(str_codec : string) return t_constants;
 end codec_pkg;
 
 package body codec_pkg is
@@ -53,13 +54,15 @@ package body codec_pkg is
     NEXT_WORD_PAUSE        => 74.4 ms / C_CLK_PERIOD
   );
 
-  function get_constants(sl_codec : t_codec) return t_constants is
+  function get_constants(str_codec : string) return t_constants is
     variable v_const : t_constants;
   begin
-    if sl_codec = NEC then
+    if str_codec = "nec" then
       v_const := C_CONSTANTS_NEC;
-    elsif sl_codec = KASEIKYO then
+    elsif str_codec = "kaseikyo" then
       v_const := C_CONSTANTS_KASEIKYO;
+    else
+      report "Unknown or unsupported codec: " & str_codec severity error;
     end if;
     return v_const;
   end function get_constants;
