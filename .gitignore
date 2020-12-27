@@ -1,6 +1,8 @@
 lattice
 build
+sim_build
 .mypy_cache
+.pytest_cache
 .vscode
 __pycache__
 *.gtkw
