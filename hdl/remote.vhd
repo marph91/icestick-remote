@@ -17,7 +17,10 @@ entity remote is
     osl_ir            : out std_logic;
     osl_ir_en         : out std_logic;
     osl_uart          : out std_logic;
-    osl_encoder_ready : out std_logic
+    osl_encoder_ready : out std_logic;
+    -- Needed to prevent the red LEDs from lighting.
+    -- TODO: Can this be done directly in the PCF?
+    oslv_zero         : out std_logic_vector(3 downto 0)
   );
 end remote;
 
@@ -68,4 +71,6 @@ begin
       osl_data  => osl_uart
     );
   end generate;
+
+  oslv_zero <= (others => '0');
 end behavioral;

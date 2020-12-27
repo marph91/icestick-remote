@@ -1,8 +1,8 @@
 # Red leds
-#set_io oslv_data_bram[0] 99
-#set_io oslv_data_bram[1] 98
-#set_io oslv_data_bram[2] 97
-#set_io oslv_data_bram[3] 96
+set_io oslv_zero[0] 99
+set_io oslv_zero[1] 98
+set_io oslv_zero[2] 97
+set_io oslv_zero[3] 96
 
 # Green led
 set_io osl_encoder_ready 95
