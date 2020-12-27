@@ -5,7 +5,7 @@
 #set_io oslv_data_bram[3] 96
 
 # Green led
-set_io osl_cnt 95
+set_io osl_encoder_ready 95
 
 # IrDA
 set_io osl_ir 105

@@ -17,6 +17,6 @@ ghdl -a "$ROOT/submodules/icestick-ir-sampler/hdl/ir_sampler.vhd"
 ghdl -a "$ROOT/hdl/remote.vhd"
 # ghdl --synth remote
 yosys -m ghdl -p 'ghdl remote; synth_ice40 -json remote.json'
-nextpnr-ice40 --hx1k --json remote.json --pcf ../constraints/remote.pcf --asc remote.asc
+nextpnr-ice40 --hx1k --package tq144 --json remote.json --pcf ../constraints/remote.pcf --asc remote.asc
 icepack remote.asc remote.bin
 iceprog remote.bin

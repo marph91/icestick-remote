@@ -11,12 +11,13 @@ entity remote is
     C_WITH_SAMPLER   : std_logic := '1'
   );
   port (
-    isl_clk   : in std_logic;
-    isl_uart  : in std_logic;
-    isl_ir    : in std_logic;
-    osl_ir    : out std_logic;
-    osl_ir_en : out std_logic;
-    osl_uart  : out std_logic
+    isl_clk           : in std_logic;
+    isl_uart          : in std_logic;
+    isl_ir            : in std_logic;
+    osl_ir            : out std_logic;
+    osl_ir_en         : out std_logic;
+    osl_uart          : out std_logic;
+    osl_encoder_ready : out std_logic
   );
 end remote;
 
@@ -50,7 +51,8 @@ begin
     isl_clk   => isl_clk,
     isl_valid => slv_uart_valid_in,
     islv_data => slv_uart_data_in,
-    osl_ir    => osl_ir
+    osl_ir    => osl_ir,
+    osl_encoder_ready => osl_encoder_ready
   );
 
   -- for debugging or obtaining new codes

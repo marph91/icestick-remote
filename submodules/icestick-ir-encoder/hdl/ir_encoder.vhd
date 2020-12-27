@@ -11,10 +11,12 @@ entity ir_encoder is
     C_CODEC : t_codec := KASEIKYO
   );
   port (
-    isl_clk   : in std_logic;
-    isl_valid : in std_logic;
-    islv_data : in std_logic_vector(7 downto 0);
-    osl_ir    : out std_logic
+    isl_clk           : in std_logic;
+    isl_valid         : in std_logic;
+    islv_data         : in std_logic_vector(7 downto 0);
+    osl_ir            : out std_logic;
+    -- Only needed for flashing the LED.
+    osl_encoder_ready : out std_logic
   );
 end ir_encoder;
 
@@ -207,4 +209,5 @@ begin
   r_ctr.sl_finish <= '1' when r_ctr.int_current_cnt = 1 else '0';
 
   osl_ir <= sl_ir;
+  osl_encoder_ready <= '1' when state = IDLE else '0';
 end behavioral;
