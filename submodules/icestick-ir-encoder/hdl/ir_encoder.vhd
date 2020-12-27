@@ -111,7 +111,8 @@ begin
 
             -- Sending the same signal again (i. e. keeping a key pressed) gets handled
             -- differently at the protocols.
-            if slv_bits_previous = slv_bits_current and C_CODEC = NEC then
+            -- TODO: This might be cleaner by defining an extra flag, like REPEAT_SEQUENCE.
+            if slv_bits_previous = slv_bits_current and C_CONST.START_BIT_PAUSE_REPEAT /= 0 then
               -- Send a fixed sequence if the word is repeated.
               state <= SEND_START_BIT_PAUSE_REPEAT;
               r_ctr.int_start_cnt <= C_CONST.START_BIT_PAUSE_REPEAT;

@@ -10,6 +10,8 @@ package codec_pkg is
     -- Pause duration of the start bit.
     START_BIT_PAUSE        : integer;
     -- Pause duration of the start bit, when the word is repeated.
+    -- If there is no special sequence when repeating a word,
+    -- this variable has to be set to zero.
     START_BIT_PAUSE_REPEAT : integer;
     -- Pulse duration when sending a bit.
     BIT_PULSE              : integer;
@@ -44,7 +46,7 @@ package body codec_pkg is
     CARRIER_PERIOD         => 27.777 us / C_CLK_PERIOD, -- 36 kHz
     START_BIT_PULSE        => 3.4 ms / C_CLK_PERIOD,
     START_BIT_PAUSE        => 1.7 ms / C_CLK_PERIOD,
-    START_BIT_PAUSE_REPEAT => 0, -- not needed
+    START_BIT_PAUSE_REPEAT => 0, -- No special repeat sequence.
     BIT_PULSE              => 0.5 ms / C_CLK_PERIOD,
     BIT_0_PAUSE            => 0.5 ms / C_CLK_PERIOD,
     BIT_1_PAUSE            => 1.2 ms / C_CLK_PERIOD,
