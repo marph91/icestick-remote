@@ -2,6 +2,20 @@
 
 set -e
 
+# parse arguments
+flash=false
+while test $# -gt 0; do
+  case "$1" in
+    --flash)
+        flash=true
+        break
+        ;;
+    *)
+        break
+        ;;
+    esac
+done
+
 ROOT="$(pwd)/.."
 
 rm -rf build
@@ -19,4 +33,7 @@ ghdl -a "$ROOT/hdl/remote.vhd"
 yosys -m ghdl -p 'ghdl remote; synth_ice40 -json remote.json'
 nextpnr-ice40 --hx1k --package tq144 --json remote.json --pcf ../constraints/remote.pcf --asc remote.asc
 icepack remote.asc remote.bin
-iceprog remote.bin
+
+if [ "$flash" = true ]; then
+    iceprog remote.bin
+fi

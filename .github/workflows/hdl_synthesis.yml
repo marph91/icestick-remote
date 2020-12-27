@@ -5,60 +5,21 @@ on: [push, pull_request]
 jobs:
   synthesis:
     runs-on: ubuntu-latest
-    container: ghdl/synth:beta
+    container: hdlc/impl
     steps:
       - name: Update git # manually, until git >= 2.18 is available in the container
         run: apt update && apt install --yes git
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - name: Run synthesis
+      - name: Run synthesis, pnr and packing
         run: |
-          ghdl -a "submodules/icestick-uart/hdl/uart_rx.vhd"
-          ghdl -a "submodules/icestick-uart/hdl/uart_tx.vhd"
-          ghdl -a "submodules/icestick-ir-encoder/hdl/codec_pkg.vhd"
-          ghdl -a "submodules/icestick-ir-encoder/hdl/ir_encoder.vhd"
-          ghdl -a "submodules/icestick-ir-sampler/hdl/bram.vhd"
-          ghdl -a "submodules/icestick-ir-sampler/hdl/ir_sampler.vhd"
-          ghdl -a "hdl/remote.vhd"
-          yosys -m ghdl -p "ghdl remote; synth_ice40 -json remote.json"
-      - name: Upload result
+          cd syn && ./synth.sh
+      - name: Upload results
         uses: actions/upload-artifact@v2
         with:
           name: output
-          path: remote.json
-  pnr:
-    needs: synthesis
-    runs-on: ubuntu-latest
-    container: ghdl/synth:nextpnr
-    steps:
-      - uses: actions/checkout@v2
-      - name: Download result of synthesis
-        uses: actions/download-artifact@v2
-        with:
-          name: output
-          path: output
-      - name: Run place and route
-        run: nextpnr-ice40 --hx1k --package tq144 --json output/remote.json --pcf syn/constraints/remote.pcf --asc remote.asc
-      - name: Upload result
-        uses: actions/upload-artifact@v2
-        with:
-          name: output
-          path: remote.asc
-  pack:
-    needs: pnr
-    runs-on: ubuntu-latest
-    container: ghdl/synth:icestorm
-    steps:
-      - name: Download result of place and route
-        uses: actions/download-artifact@v2
-        with:
-          name: output
-          path: output
-      - name: Run packing
-        run: icepack output/remote.asc remote.bin
-      - name: Upload result
-        uses: actions/upload-artifact@v2
-        with:
-          name: output
-          path: remote.bin
+          path: |
+            syn/build/remote.json
+            syn/build/remote.asc
+            syn/build/remote.bin
