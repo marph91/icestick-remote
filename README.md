@@ -2,6 +2,7 @@
 
 [![check_scripts](https://github.com/marph91/icestick-remote/workflows/check_scripts/badge.svg)](https://github.com/marph91/icestick-remote/actions?query=workflow%3Acheck_scripts)
 [![synthesis](https://github.com/marph91/icestick-remote/workflows/hdl_synthesis/badge.svg)](https://github.com/marph91/icestick-remote/actions?query=workflow%3Ahdl_synthesis)
+[![testsuite](https://github.com/marph91/icestick-remote/workflows/testsuite/badge.svg)](https://github.com/marph91/icestick-remote/actions?query=workflow%3Atestsuite)
 
 Remote control in VHDL, which fits on a Lattice icestick. The whole design flow was done using open source tools. It was tested with a Panasonic TX-49FXW654 and can be extended for other devices and protocols.
 

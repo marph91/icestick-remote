@@ -1,0 +1,16 @@
+name: testsuite
+
+on: [push, pull_request]
+
+jobs:
+  testsuite:
+    runs-on: ubuntu-latest
+    container: ghdl/ghdl
+    steps:
+      - name: Setup BATS
+        uses: mig4/setup-bats@v1
+        with:
+          bats-version: 1.2.1
+      - uses: actions/checkout@v2
+      - name: Run tests
+        run: cd sim && timeout 10m bats tests.bats
