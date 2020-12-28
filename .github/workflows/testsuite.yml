@@ -7,10 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     container: ghdl/ghdl:ubuntu20-llvm-10
     steps:
+      - name: Update git # manually, until git >= 2.18 is available in the container
+        run: apt update && apt install --yes git
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Setup BATS
         uses: mig4/setup-bats@v1
         with:
           bats-version: 1.2.1
-      - uses: actions/checkout@v2
       - name: Run tests
         run: cd sim && timeout 10m bats tests.bats
