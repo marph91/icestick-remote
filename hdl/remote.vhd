@@ -6,7 +6,7 @@ library work;
 entity remote is
   generic (
     C_CYCLES_PER_BIT : integer := 104;
-    C_DUTY_CYCLE     : integer := 2;
+    C_DUTY_CYCLE     : integer range 1 to 2 := 2;
     C_CODEC          : string := "kaseikyo";
     C_WITH_SAMPLER   : integer range 0 to 1 := 1
   );
@@ -70,6 +70,8 @@ begin
       isl_data  => isl_ir,
       osl_data  => osl_uart
     );
+  else generate
+    osl_uart <= '1';
   end generate;
 
   oslv_zero <= (others => '0');
