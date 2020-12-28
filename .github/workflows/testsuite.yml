@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   testsuite:
     runs-on: ubuntu-latest
-    container: ghdl/ghdl
+    container: ghdl/ghdl:ubuntu20-llvm-10
     steps:
       - name: Setup BATS
         uses: mig4/setup-bats@v1
