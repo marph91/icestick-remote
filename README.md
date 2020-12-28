@@ -49,3 +49,4 @@ Useful links:
 - <https://www.mikrocontroller.net/attachment/4246/IR-Protokolle_Diplomarbeit.pdf>
 - <https://www.roboternetz.de/phpBB2/files/entwicklung_und_realisierung_einer_universalinfrarotfernbedienung_mit_timerfunktionen.pdf>
 - <http://www.hifi-remote.com/wiki/index.php/Panasonic>
+- <https://github.com/ukw100/IRMP/blob/master/src/irmpprotocols.h>
