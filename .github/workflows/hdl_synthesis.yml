@@ -3,23 +3,33 @@ name: hdl_synthesis
 on: [push, pull_request]
 
 jobs:
+
   synthesis:
     runs-on: ubuntu-latest
-    container: hdlc/impl
     steps:
-      - name: Update git # manually, until git >= 2.18 is available in the container
-        run: apt update && apt install --yes git
+
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - name: Run synthesis, pnr and packing
+
+      - name: Pull docker images
         run: |
-          cd syn && ./synth.sh
+          docker pull hdlc/ghdl:yosys
+          docker pull hdlc/nextpnr:ice40
+          docker pull hdlc/icestorm
+
+      - name: Run synthesis, pnr and packing
+        env:
+          USE_CONTAINERS: 1
+        run: |
+          cd syn
+          make
+
       - name: Upload results
         uses: actions/upload-artifact@v2
         with:
           name: output
           path: |
-            syn/build/remote.json
-            syn/build/remote.asc
-            syn/build/remote.bin
+            syn/remote.json
+            syn/remote.asc
+            syn/remote.bin
