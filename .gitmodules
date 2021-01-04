@@ -1,3 +1,3 @@
 [submodule "submodules/icestick-uart"]
 	path = submodules/icestick-uart
-	url = git@github.com:marph91/icestick-uart.git
+	url = https://github.com/marph91/icestick-uart.git
