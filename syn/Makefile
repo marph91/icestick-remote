@@ -4,7 +4,7 @@ CONSTRAINTS_FILE := constraints/remote.pcf
 
 GHDL          ?= ghdl
 GHDL_SYNTH    ?= ghdl
-YOSYS_PLUGIN  ?=
+YOSYS_PLUGIN  ?= -m ghdl
 YOSYS         ?= yosys
 YOSYS_SYNTH   ?= synth_ice40
 NEXTPNR       ?= nextpnr-ice40
