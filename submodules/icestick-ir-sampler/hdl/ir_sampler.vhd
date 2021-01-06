@@ -79,7 +79,7 @@ begin
           end if;
 
         when SAMPLE =>
-          if int_sample_cnt < C_SAMPLE_CYCLES then
+          if int_sample_cnt /= C_SAMPLE_CYCLES then
             int_sample_cnt <= int_sample_cnt + 1;
           else
             int_sample_cnt <= 0;
@@ -87,7 +87,7 @@ begin
             if usig_sample_addr(2 downto 0) = "111" then -- modulo 8
               usig_bram_addr <= usig_bram_addr + 1;
             end if;
-            if usig_sample_addr < 2**usig_sample_addr'LENGTH-1 then
+            if usig_sample_addr /= 2**usig_sample_addr'LENGTH-1 then
               slv_sampled_byte <= slv_sampled_byte(slv_sampled_byte'LEFT-1 downto 0) & isl_data;
             else
               state <= SEND;
@@ -99,7 +99,7 @@ begin
         when SEND =>
           if sl_uart_ready = '1' and sl_bram_valid = '0' then
             usig_bram_addr <= usig_bram_addr + 1;
-            if usig_bram_addr < 2**usig_bram_addr'LENGTH-1 then
+            if usig_bram_addr /= 2**usig_bram_addr'LENGTH-1 then
               sl_bram_valid <= '1';
             else
               state <= IDLE;

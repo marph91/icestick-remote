@@ -32,9 +32,9 @@ There are also prepared docker container, including all the mentioned tools. For
 
 resource | absolute usage | relative usage
 -------------|----------:|---:
-ICESTORM_LC  | 572/ 1280 | 44%
+ICESTORM_LC  | 474/ 1280 | 37%
 ICESTORM_RAM |   2/   16 | 12%
-SB_IO        |   6/  112 |  5%
+SB_IO        |  11/  112 |  9%
 SB_GB        |   4/    8 | 50%
 ICESTORM_PLL |   0/    1 |  0%
 SB_WARMBOOT  |   0/    1 |  0%

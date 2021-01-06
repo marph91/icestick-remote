@@ -62,7 +62,7 @@ begin
   begin
     if rising_edge(isl_clk) then
       if isl_valid = '1' then
-        if int_byte_cnt < C_CONST.DATA_BYTES then
+        if int_byte_cnt /= C_CONST.DATA_BYTES then
           int_byte_cnt <= int_byte_cnt+1;
         end if;
         -- first received byte will be at lowest index
@@ -91,7 +91,7 @@ begin
         r_ctr.sl_start <= sl_ctr_finish_d1;
       end if;
 
-      if int_blocking_cnt > 0 then
+      if int_blocking_cnt /= 0 then
         int_blocking_cnt <= int_blocking_cnt - 1;
       end if;
 
@@ -179,7 +179,7 @@ begin
         if int_ir_period_cnt > C_CONST.CARRIER_PERIOD / (C_DUTY_CYCLE + 1) then
           int_ir_period_cnt <= int_ir_period_cnt - 1;
           sl_ir <= '0';
-        elsif int_ir_period_cnt > 0 then
+        elsif int_ir_period_cnt /= 0 then
           int_ir_period_cnt <= int_ir_period_cnt - 1;
           sl_ir <= '1';
         else
@@ -202,7 +202,7 @@ begin
         r_ctr.int_current_cnt <= r_ctr.int_start_cnt;
       end if;
 
-      if r_ctr.int_current_cnt > 0 then
+      if r_ctr.int_current_cnt /= 0 then
         r_ctr.int_current_cnt <= r_ctr.int_current_cnt-1;
       end if;
     end if;
