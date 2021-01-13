@@ -13,8 +13,8 @@ STD="08"
     cd "$WORKDIR"
 
     ghdl -i --std="$STD" "$ROOT"/submodules/icestick-uart/hdl/*.vhd
-    ghdl -i --std="$STD" "$ROOT"/submodules/icestick-ir-encoder/hdl/*.vhd
-    ghdl -i --std="$STD" "$ROOT"/submodules/icestick-ir-sampler/hdl/*.vhd
+    ghdl -i --std="$STD" "$ROOT"/hdl/ir_encoder/*.vhd
+    ghdl -i --std="$STD" "$ROOT"/hdl/ir_sampler/*.vhd
     ghdl -i --std="$STD" "$ROOT"/hdl/*.vhd
     ghdl -m --std="$STD" remote
 }
