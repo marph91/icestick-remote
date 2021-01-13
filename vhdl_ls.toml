@@ -1,0 +1,7 @@
+[libraries]
+work.files = [
+  "submodules/icestick-uart/hdl/*.vhd",
+  "hdl/ir_encoder/*.vhd",
+  "hdl/ir_sampler/*.vhd",
+  "hdl/*.vhd"
+]
