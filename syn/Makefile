@@ -21,10 +21,10 @@ NEXTPNR_FLAGS += -q
 SYN_FILES = \
 	../submodules/icestick-uart/hdl/uart_rx.vhd \
 	../submodules/icestick-uart/hdl/uart_tx.vhd \
-	../submodules/icestick-ir-encoder/hdl/codec_pkg.vhd \
-	../submodules/icestick-ir-encoder/hdl/ir_encoder.vhd \
-	../submodules/icestick-ir-sampler/hdl/bram.vhd \
-	../submodules/icestick-ir-sampler/hdl/ir_sampler.vhd \
+	../hdl/ir_encoder/codec_pkg.vhd \
+	../hdl/ir_encoder/ir_encoder.vhd \
+	../hdl/ir_sampler/bram.vhd \
+	../hdl/ir_sampler/ir_sampler.vhd \
 	../hdl/remote.vhd
 
 all: remote.bin
