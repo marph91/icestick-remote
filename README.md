@@ -9,12 +9,9 @@ Remote control in VHDL, which fits on a Lattice icestick. The whole design flow 
 ## Repository structure
 
 - gui: Contains a python script to provide control signals to the FPGA.
-- hdl: Contains the toplevel hardware design.
-- sim: Contains scripts for a few manual tests.
-- submodules: Contains the following three submodules:
-  - icestick-ir-encoder: Used to encode a signal to the infrared protocol.
-  - icestick-ir-sampler: Used to sample new codes from a remote control.
-  - icestick-uart: Used to communicate with the icestick.
+- hdl: Contains the toplevel hardware design as well as the infrared encoder and sampler code.
+- sim: Contains a few automated tests and scripts for manual tests.
+- submodules: Contains [icestick-uart](https://github.com/marph91/icestick-uart), which is used to communicate with the icestick.
 - syn: Contains the scripts and constraints for synthesis and following steps.
 
 ## Prerequisites
@@ -24,7 +21,7 @@ There are also prepared docker container, including all the mentioned tools. For
 
 ## Usage
 
-- Create the bitstream and flash the icestick: `cd syn && ./synth.sh`
+- Create the bitstream and flash the icestick: `cd syn && make && make load`
 - Send control signals to the icestick, which get encoded and sent via the infrared LED: `cd gui && ./remote_gui.py`
 - New codes can be obtained by pressing the "Start sampling" button at the "Sample" tab.
 
