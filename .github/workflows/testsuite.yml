@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Update git # manually, until git >= 2.18 is available in the container
         run: apt update && apt install --yes git
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Setup BATS
