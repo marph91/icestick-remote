@@ -14,12 +14,12 @@ jobs:
       with:
         python-version: 3.8
     - name: Install packets
-      run: sudo apt-get install pycodestyle pylint3 mypy shellcheck
+      run: sudo apt-get install pycodestyle pylint mypy shellcheck
     - name: Lint with pycodestyle
       run: find -name *.py | xargs pycodestyle
     - name: Lint with pylint
       continue-on-error: true
-      run: find -name *.py | xargs pylint3
+      run: find -name *.py | xargs pylint
     - name: Typecheck with mypy
       run: find -name *.py | xargs mypy
     - name: Check bash scripts with shellcheck
